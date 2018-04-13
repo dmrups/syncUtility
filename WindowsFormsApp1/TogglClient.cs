@@ -34,14 +34,24 @@ namespace WindowsFormsApp1
             var hours = timeSrv.List(prams)
                 .Where(w => !string.IsNullOrEmpty(w.Description));
 
-            var result = hours.GroupBy(x => x.Description).Select(x => new TaskReport
-            {
-                Description = x.Key,
-                Date = DateTime.Parse(x.First().Start).Date,
-                Duration = TimeSpan.FromSeconds(x.Sum(y => y.Duration ?? 0)),
-                ProjectName = x.First().ProjectId == KdlId ? "KDL" : "VELAN",
-                TaskId = x.First().TagNames.FirstOrDefault()
-            });
+            var result = hours.GroupBy(x => DateTime.Parse(x.Start).Date)
+                .SelectMany(x => x.GroupBy(y => y.Description).Select(z => new TaskReport
+                {
+                    Description = z.Key,
+                    Date = DateTime.Parse(z.First().Start).Date,
+                    Duration = TimeSpan.FromSeconds(z.Sum(a => a.Duration ?? 0)),
+                    ProjectName = z.First().ProjectId == KdlId ? "KDL" : "VELAN",
+                    TaskId = z.First().TagNames.FirstOrDefault()
+                }));
+
+            //var result = hours.GroupBy(x => x.Description).Select(x => new TaskReport
+            //{
+            //    Description = x.Key,
+            //    Date = DateTime.Parse(x.First().Start).Date,
+            //    Duration = TimeSpan.FromSeconds(x.Sum(y => y.Duration ?? 0)),
+            //    ProjectName = x.First().ProjectId == KdlId ? "KDL" : "VELAN",
+            //    TaskId = x.First().TagNames.FirstOrDefault()
+            //});
 
             return result;
         }
