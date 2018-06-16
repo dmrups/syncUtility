@@ -6,7 +6,9 @@ using Google.Apis.Util.Store;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace WindowsFormsApp1
 {
@@ -33,11 +35,12 @@ namespace WindowsFormsApp1
                     "user",
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
+
                 Console.WriteLine("Credential file saved to: " + credPath);
             }
         }
 
-        public void InsertRows(IList<IList<object>> data, string sheetName)
+        public async Task InsertRowsAsync(IList<IList<object>> data, string sheetName)
         {
             var service = new SheetsService(new BaseClientService.Initializer()
             {
@@ -58,7 +61,25 @@ namespace WindowsFormsApp1
             request2.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
             request2.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
 
-            AppendValuesResponse response = request2.Execute();
+            AppendValuesResponse response = await request2.ExecuteAsync();
+        }
+
+        public async Task<DateTime> GetLastDateAsync(string sheetName)
+        {
+            var service = new SheetsService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName,
+            });
+
+            String range = $"{sheetName}!A:A";
+
+            SpreadsheetsResource.ValuesResource.GetRequest request2 =
+                service.Spreadsheets.Values.Get(spreadsheetId, range);
+
+            var response = await request2.ExecuteAsync();
+
+            return DateTime.Parse(response.Values.Last().First().ToString());
         }
     }
 }

@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 using WindowsFormsApp1;
+using WindowsFormsApp1.Jobs;
 
 namespace MyTrayApp
 {
     public class SysTrayApp : Form
     {
         Pinger pinger;
-        TogglClient toggl;
-        GSheetClient sheet;
 
         [STAThread]
         public static void Main()
@@ -20,34 +17,8 @@ namespace MyTrayApp
 
         public SysTrayApp()
         {
-            //pinger = new Pinger(OnExit);
-            toggl = new TogglClient();
-            sheet = new GSheetClient();
-
-            //var hours = toggl.GetHours(new DateTime(2018,4,1), DateTime.Now.Date);
-
-            //var kdlHours = hours.Where(x => x.ProjectName == "KDL");
-            //var velanHours = hours.Where(x => x.ProjectName == "VELAN");
-
-            //// row format: date / work item id / description / hours
-            //var kdlData = kdlHours.Select(x => (IList<object>)new List<object>
-            //{
-            //    x.Date.ToString("dd.MM.yyyy"),
-            //    x.TaskId,
-            //    x.Description,
-            //    Math.Round(x.Duration.TotalHours, 1)
-            //});
-
-            //var velanData = velanHours.Select(x => (IList<object>)new List<object>
-            //{
-            //    x.Date.ToString("dd.MM.yyyy"),
-            //    x.TaskId,
-            //    x.Description,
-            //    Math.Round(x.Duration.TotalHours, 1)
-            //});
-
-            //sheet.InsertRows(kdlData.ToList(), "KDL");
-            //sheet.InsertRows(velanData.ToList(), "VELAN");
+            pinger = new Pinger(OnExit);
+            Scheduler.StartAsync().Wait();
         }
 
         protected override void OnLoad(EventArgs e)

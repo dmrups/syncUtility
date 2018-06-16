@@ -11,15 +11,14 @@ namespace WindowsFormsApp1
     class TogglClient
     {
         private TimeEntryService timeSrv;
-        private readonly int KdlId = 110749977;
-        private readonly int VelanId = 110735396;
 
         public TogglClient()
         {
             var apiKey = "8e19e58fb9bf1971cd94b33978e861ad";
             timeSrv = new TimeEntryService(apiKey);
-
         }
+
+        public Dictionary<long, string> Projects { get; } = new Dictionary<long, string> { { 110749977, "KDL" }, { 110735396, "VELAN" } };
 
         public IEnumerable<TaskReport> GetHours(DateTime start, DateTime end)
         {
@@ -40,18 +39,9 @@ namespace WindowsFormsApp1
                     Description = z.Key,
                     Date = DateTime.Parse(z.First().Start).Date,
                     Duration = TimeSpan.FromSeconds(z.Sum(a => a.Duration ?? 0)),
-                    ProjectName = z.First().ProjectId == KdlId ? "KDL" : "VELAN",
+                    ProjectName = Projects[z.First().ProjectId.Value],
                     TaskId = z.First().TagNames.FirstOrDefault()
                 }));
-
-            //var result = hours.GroupBy(x => x.Description).Select(x => new TaskReport
-            //{
-            //    Description = x.Key,
-            //    Date = DateTime.Parse(x.First().Start).Date,
-            //    Duration = TimeSpan.FromSeconds(x.Sum(y => y.Duration ?? 0)),
-            //    ProjectName = x.First().ProjectId == KdlId ? "KDL" : "VELAN",
-            //    TaskId = x.First().TagNames.FirstOrDefault()
-            //});
 
             return result;
         }
